@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decentralised File Storage System</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            height: 100%;
+        }
+        .container {
+            display: flex;
+            height: 100%;
+        }
+        .sidebar {
+            background-color: #3a3652;
+            color: white;
+            padding: 2rem;
+            width: 40%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .main-content {
+            padding: 2rem;
+            width: 60%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        p {
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+        .input-group {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 0.5rem 0 0 0.5rem;
+            font-size: 1rem;
+        }
+        .join-button {
+            background-color: #3a3652;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 0 0.5rem 0.5rem 0;
+            transition: background-color 0.3s;
+        }
+        .join-button:hover {
+            background-color: #2a2640;
+        }
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 2rem 0;
+        }
+        .divider-line {
+            flex-grow: 1;
+            height: 1px;
+            background-color: #ccc;
+        }
+        .divider-text {
+            margin: 0 1rem;
+            color: #666;
+        }
+        .create-button {
+            width: 100%;
+            background-color: #3a3652;
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            transition: background-color 0.3s;
+        }
+        .create-button:hover {
+            background-color: #2a2640;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2 style="text-align: center; font-family: 'Libre Baskerville', serif;">Decentralised File Storage System</h2>
+            <p style="text-align: center; font-family: 'Montserrat', sans-serif;">Securely distribute and access files across P2P networks, ensuring high availability, security, and privacy.</p>
+        </div>
+        <div class="main-content">
+            <h2>Join a network</h2>
+            <p style="margin-top: 10px; margin-bottom: 0;">Enter IP address and port number</p>
+            <div class="input-group" style="margin-top: 10px;">
+                <input type="text" id="network-address" placeholder="Enter IP address and port">
+                <button class="join-button" onclick="joinNetwork()">Join</button>
+            </div>
+            
+            <div class="divider">
+                <div class="divider-line"></div>
+                <span class="divider-text">or</span>
+                <div class="divider-line"></div>
+            </div>
+            
+            <button class="create-button" onclick="createNetwork()">Create a new network</button>
+        </div>
+    </div>
+
+    <script>
+        function joinNetwork() {
+            const address = document.getElementById('network-address').value;
+            if (address) {
+                alert(`Joining network at: ${address}`);
+                // Add your logic here to handle joining the network
+            } else {
+                alert('Please enter an IP address and port number');
+            }
+        }
+
+        function createNetwork() {
+            alert('Creating a new network');
+            // Add your logic here to handle creating a new network
+        }
+    </script>
+</body>
+</html>

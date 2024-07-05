@@ -1,0 +1,16 @@
+{
+  "name": "decntralized-file-storage",
+  "version": "1.0.0",
+  "discription": "A peer to peer file storage system over UDP",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "Madhav Krishan Garg",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^31.1.0"
+  }
+}
