@@ -100,8 +100,8 @@
 <body>
     <div class="container">
         <div class="sidebar">
-            <h2 style="text-align: center; font-family: 'Libre Baskerville', serif;">Decentralised File Storage System</h2>
-            <p style="text-align: center; font-family: 'Montserrat', sans-serif;">Securely distribute and access files across P2P networks, ensuring high availability, security, and privacy.</p>
+            <h2 style="text-align: center;">Decentralised File Storage System</h2>
+            <p style="text-align: center;">Securely distribute and access files across P2P networks, ensuring high availability, security, and privacy.</p>
         </div>
         <div class="main-content">
             <h2>Join a network</h2>
@@ -121,21 +121,6 @@
         </div>
     </div>
 
-    <script>
-        function joinNetwork() {
-            const address = document.getElementById('network-address').value;
-            if (address) {
-                alert(`Joining network at: ${address}`);
-                // Add your logic here to handle joining the network
-            } else {
-                alert('Please enter an IP address and port number');
-            }
-        }
-
-        function createNetwork() {
-            alert('Creating a new network');
-            // Add your logic here to handle creating a new network
-        }
-    </script>
+    <script src="renderer.js"></script>
 </body>
 </html>

@@ -1,25 +1,45 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
-const fs = require('fs');
 const WebSocket = require('ws');
 const axios = require('axios');
 
 let mainWindow;
 let pythonProcess;
 let ws;
+let wsRetryCount = 0;
+const MAX_RETRY = 5;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1024,
     height: 768,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
     },
   });
 
   mainWindow.loadFile('landing.html');
+}
+
+function startPythonServer() {
+  pythonProcess = spawn('python3', [path.join(__dirname, 'python', 'runner.py')], {
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+
+  pythonProcess.stdout.on('data', (data) => {
+    console.log(`Python stdout: ${data}`);
+  });
+
+  pythonProcess.stderr.on('data', (data) => {
+    console.error(`Python stderr: ${data}`);
+  });
+
+  pythonProcess.on('close', (code) => {
+    console.log(`Python process exited with code ${code}`);
+  });
 }
 
 function setupWebSocket() {
@@ -27,6 +47,8 @@ function setupWebSocket() {
 
   ws.on('open', function open() {
     console.log('Connected to WebSocket server');
+    wsRetryCount = 0;
+    mainWindow.webContents.send('ws-status', { connected: true });
   });
 
   ws.on('message', function incoming(data) {
@@ -38,18 +60,34 @@ function setupWebSocket() {
 
   ws.on('close', function close() {
     console.log('Disconnected from WebSocket server');
-    setTimeout(setupWebSocket, 1000); // Try to reconnect after 1 second
+    mainWindow.webContents.send('ws-status', { connected: false });
+    retryWebSocketConnection();
   });
 
   ws.on('error', function error(err) {
     console.error('WebSocket error:', err);
-    setTimeout(setupWebSocket, 1000); // Try to reconnect after 1 second
+    retryWebSocketConnection();
   });
+}
+
+function retryWebSocketConnection() {
+  if (wsRetryCount < MAX_RETRY) {
+    wsRetryCount++;
+    console.log(`Retrying WebSocket connection... Attempt ${wsRetryCount}`);
+    setTimeout(setupWebSocket, 5000);
+  } else {
+    console.error('Max retry attempts reached. WebSocket connection failed.');
+    mainWindow.webContents.send('ws-status', { connected: false, maxRetryReached: true });
+  }
 }
 
 app.whenReady().then(() => {
   createWindow();
-  setupWebSocket();
+  startPythonServer();
+  
+  setTimeout(() => {
+    setupWebSocket();
+  }, 2000);
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -62,18 +100,20 @@ app.on('window-all-closed', function () {
 
 app.on('before-quit', async () => {
   if (pythonProcess) {
-    await axios.post('http://localhost:8080/shutdown');
+    await axios.post('http://localhost:8080/shutdown').catch(console.error);
     pythonProcess.kill();
   }
   if (ws) ws.close();
 });
 
-ipcMain.on('start-node', async (event, knownPeer) => {
+ipcMain.handle('start-node', async (event, knownPeer) => {
   try {
-    const response = await axios.post('http://localhost:8080/initialize', { known_peer: knownPeer ? { ip: knownPeer.split(':')[0], port: parseInt(knownPeer.split(':')[1]) } : null });
-    mainWindow.webContents.send('node-info', response.data);
+    const response = await axios.post('http://localhost:8080/initialize', { 
+      known_peer: knownPeer ? { ip: knownPeer.split(':')[0], port: parseInt(knownPeer.split(':')[1]) } : null 
+    });
+    return response.data;
   } catch (error) {
-    mainWindow.webContents.send('node-error', error.message);
+    throw error;
   }
 });
 
@@ -82,8 +122,7 @@ ipcMain.handle('send-chat', async (event, message) => {
     const response = await axios.post('http://localhost:8080/chat', { message });
     return response.data;
   } catch (error) {
-    console.error('Error sending chat message:', error);
-    return { status: 'error', message: error.message };
+    throw error;
   }
 });
 
@@ -92,8 +131,7 @@ ipcMain.handle('distribute-file', async (event, filePath) => {
     const response = await axios.post('http://localhost:8080/distribute', { file_path: filePath });
     return response.data;
   } catch (error) {
-    console.error('Error distributing file:', error);
-    return { status: 'error', message: error.message };
+    throw error;
   }
 });
 
@@ -102,8 +140,7 @@ ipcMain.handle('retrieve-file', async (event, fileId, outputPath) => {
     const response = await axios.post('http://localhost:8080/retrieve', { file_id: fileId, output_path: outputPath });
     return response.data;
   } catch (error) {
-    console.error('Error retrieving file:', error);
-    return { status: 'error', message: error.message };
+    throw error;
   }
 });
 
@@ -112,8 +149,7 @@ ipcMain.handle('delete-file', async (event, fileId) => {
     const response = await axios.post('http://localhost:8080/delete', { file_id: fileId });
     return response.data;
   } catch (error) {
-    console.error('Error deleting file:', error);
-    return { status: 'error', message: error.message };
+    throw error;
   }
 });
 

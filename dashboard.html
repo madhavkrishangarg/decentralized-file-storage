@@ -57,41 +57,22 @@
             margin-bottom: 20px;
             font-weight: 600;
         }
-        .file-list, .chat-container {
+        .content-area {
             background-color: white;
             border-radius: 5px;
             padding: 20px;
             flex-grow: 1;
             overflow-y: auto;
         }
-        .file-item {
+        .chat-container {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
+            flex-direction: column;
+            height: 100%;
         }
-        .file-item:last-child {
-            border-bottom: none;
-        }
-        .file-info {
+        .chat-messages {
             flex-grow: 1;
-        }
-        .file-name {
-            font-weight: 600;
-        }
-        .file-id {
-            font-size: 0.8em;
-            color: #666;
-        }
-        .file-actions {
-            display: flex;
-            gap: 10px;
-        }
-        .action-icon {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
+            overflow-y: auto;
+            margin-bottom: 20px;
         }
         .chat-message {
             margin-bottom: 10px;
@@ -109,7 +90,6 @@
         }
         .chat-input {
             display: flex;
-            margin-top: 20px;
         }
         .chat-input input {
             flex-grow: 1;
@@ -123,6 +103,32 @@
             color: white;
             border: none;
             border-radius: 0 5px 5px 0;
+            cursor: pointer;
+        }
+        .file-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        .file-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .file-actions button {
+            padding: 5px 10px;
+            background-color: #3a3652;
+            color: white;
+            border: none;
+            border-radius: 3px;
             cursor: pointer;
         }
         .logout-btn {
@@ -141,66 +147,25 @@
     <div class="container">
         <div class="sidebar">
             <div class="sidebar-top">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z'/%3E%3C/svg%3E" alt="Chat" class="sidebar-icon" onclick="showChat()">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z'/%3E%3C/svg%3E" alt="Files" class="sidebar-icon" onclick="showFiles()">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z'/%3E%3C/svg%3E" alt="Upload" class="sidebar-icon">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z'/%3E%3C/svg%3E" alt="Chat" class="sidebar-icon" id="chat-btn">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z'/%3E%3C/svg%3E" alt="Files" class="sidebar-icon" id="files-btn">
             </div>
-            <button class="logout-btn" onclick="logout()">
+            <button class="logout-btn" onclick="window.location.href='landing.html'">
                 <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z'/%3E%3C/svg%3E" alt="Logout" style="width: 24px; height: 24px;">
             </button>
         </div>
         <div class="main-content">
             <div class="header">
-                <div class="node-info">Node Id: nisn245njh4k5j3n3845nx234u5d2</div>
-                <div class="node-info">Port No: 1123</div>
+                <div class="node-info">Node Id: <span id="node-id"></span></div>
+                <div class="node-info">Port No: <span id="port-no"></span></div>
             </div>
-            <h1 id="content-title">My Files</h1>
-            <div id="files-container" class="file-list">
-                <div class="file-item">
-                    <div class="file-info">
-                        <div class="file-name">document1.pdf</div>
-                        <div class="file-id">file_id_12345</div>
-                    </div>
-                    <div class="file-actions">
-                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'%3E%3Cpath d='M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z'/%3E%3C/svg%3E" alt="Delete" class="action-icon">
-                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'%3E%3Cpath d='M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z'/%3E%3C/svg%3E" alt="Download" class="action-icon">
-                    </div>
-                </div>
-                <!-- More file items... -->
-            </div>
-            <div id="chat-container" class="chat-container" style="display: none;">
-                <div class="chat-message incoming">Hello! How can I help you today?</div>
-                <div class="chat-message outgoing">I need help with file uploads.</div>
-                <div class="chat-input">
-                    <input type="text" placeholder="Type your message...">
-                    <button onclick="sendMessage()">Send</button>
-                </div>
+            <h1 id="content-title">Dashboard</h1>
+            <div id="content-area" class="content-area">
+                <!-- Content will be dynamically inserted here -->
             </div>
         </div>
     </div>
 
-    <script>
-        function showChat() {
-            document.getElementById('files-container').style.display = 'none';
-            document.getElementById('chat-container').style.display = 'block';
-            document.getElementById('content-title').textContent = 'Chat';
-        }
-
-        function showFiles() {
-            document.getElementById('chat-container').style.display = 'none';
-            document.getElementById('files-container').style.display = 'block';
-            document.getElementById('content-title').textContent = 'My Files';
-        }
-
-        function sendMessage() {
-            // Implement chat functionality
-            console.log('Message sent');
-        }
-
-        function logout() {
-            // Implement logout functionality
-            console.log('Logging out');
-        }
-    </script>
+    <script src="renderer.js"></script>
 </body>
 </html>

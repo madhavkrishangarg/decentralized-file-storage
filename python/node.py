@@ -63,6 +63,11 @@ class Node:
         self.peer_lock = asyncio.Lock()
         self.chunk_lock = asyncio.Lock()
 
+        self.chat_messages = []
+
+        print(known_peer)
+        print("Node initialized.")
+
 
     async def start(self):
         self.running = True
@@ -83,9 +88,8 @@ class Node:
                 print("Discovery response not received from known peer. Exiting.")
                 exit(1)
 
-        
-
-        print(f"Node started on {self.host}:{self.port} with ID {self.node_id}")
+        print("Node started.")
+        return self.port, self.node_id
 
     def stop(self):
         print("Stopping node...")
@@ -171,6 +175,11 @@ class Node:
 
             elif msg_type == 'chat':
                 print(f"Message from {sender_id}: {message['content']}")
+                self.chat_messages.append({
+                    'sender': sender_id,
+                    'content': message['content']
+                })
+                
 
             elif msg_type == 'store_chunk':     # uploader sends chunk data to be stored
                 chunk_id = message['chunk_id']
