@@ -1,6 +1,7 @@
 // Global variables
 let chatMessages = [];
 let currentNodeId = '';
+let fileList = [];
 
 // Utility function to set element text content
 function setElementText(id, text) {
@@ -19,20 +20,20 @@ function joinNetwork() {
             .then(result => {
                 console.log('Node started:', result);
                 window.electronAPI.loadDashboard();
-                setTimeout(() => {loadingPopup.style.display = 'none';
+                setTimeout(() => {
+                    loadingPopup.style.display = 'none';
                     alert('Unable to connect to network. Please try again.')
-                }, 15000);
+                }, 20000);
             })
             .catch(error => console.error('Failed to start node:', error));
-            setTimeout(() => {loadingPopup.style.display = 'none';
-                alert('Unable to connect to network. Please try again.')
-            }, 15000);
-
+        setTimeout(() => {
+            loadingPopup.style.display = 'none';
+            alert('Unable to connect to network. Please try again.')
+        }, 20000);
     } else {
         alert('Please enter a network address');
         loadingPopup.style.display = 'none';
     }
-
 }
 
 // Create network function
@@ -142,7 +143,7 @@ function showFiles() {
     `;
     document.getElementById('upload-btn').addEventListener('click', () => document.getElementById('file-upload').click());
     document.getElementById('file-upload').addEventListener('change', uploadFile);
-    loadFileList();
+    displayFileList();
 }
 
 // Upload a file
@@ -152,35 +153,33 @@ async function uploadFile(event) {
         try {
             const result = await window.electronAPI.distributeFile(file.path);
             console.log('File distributed successfully:', result.file_id);
-            loadFileList();
+            fileList.push({ id: result.file_id, name: file.name });
+            displayFileList();
         } catch (error) {
             console.error('Failed to distribute file:', error);
         }
     }
 }
 
-// Load the list of files
-async function loadFileList() {
-    // In a real application, you would fetch this list from your node
-    // For now, we'll use a placeholder list
-    const files = [
-        { id: 'file1', name: 'document1.pdf' },
-        { id: 'file2', name: 'image1.jpg' },
-    ];
-    const fileList = document.getElementById('file-list');
-    fileList.innerHTML = '';
-    files.forEach(file => {
-        const li = document.createElement('li');
-        li.classList.add('file-item');
-        li.innerHTML = `
-            <span>${file.name}</span>
-            <div class="file-actions">
-                <button onclick="downloadFile('${file.id}')">Download</button>
-                <button onclick="deleteFile('${file.id}')">Delete</button>
-            </div>
-        `;
-        fileList.appendChild(li);
-    });
+// Display the list of files
+function displayFileList() {
+    const fileListElement = document.getElementById('file-list');
+    if (fileListElement) {
+        fileListElement.innerHTML = '';
+        fileList.forEach(file => {
+            const li = document.createElement('li');
+            li.classList.add('file-item');
+            li.innerHTML = `
+                <div class="file-name">${file.name}</div>
+                <div class="file-id">${file.id}</div>
+                <div class="file-actions">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233a3652'%3E%3Cpath d='M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z'/%3E%3C/svg%3E" alt="Download" class="action-icon" onclick="downloadFile('${file.id}')">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff4757'%3E%3Cpath d='M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z'/%3E%3C/svg%3E" alt="Delete" class="action-icon" onclick="deleteFile('${file.id}')">
+                </div>
+            `;
+            fileListElement.appendChild(li);
+        });
+    }
 }
 
 // Download a file
@@ -188,8 +187,10 @@ async function downloadFile(fileId) {
     try {
         const result = await window.electronAPI.retrieveFile(fileId, `downloads/${fileId}`);
         console.log('File retrieved successfully:', result.status);
+        alert('File downloaded successfully!');
     } catch (error) {
         console.error('Failed to retrieve file:', error);
+        alert('Failed to download file. Please try again.');
     }
 }
 
@@ -198,9 +199,12 @@ async function deleteFile(fileId) {
     try {
         const result = await window.electronAPI.deleteFile(fileId);
         console.log('File deleted successfully:', result.status);
-        loadFileList();
+        fileList = fileList.filter(file => file.id !== fileId);
+        displayFileList();
+        alert('File deleted successfully!');
     } catch (error) {
         console.error('Failed to delete file:', error);
+        alert('Failed to delete file. Please try again.');
     }
 }
 

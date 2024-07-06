@@ -134,6 +134,12 @@ class Node:
             except Exception as e:
                 print(f"Error in listen: {e}")
                 traceback.print_exc()
+                try:
+                    self.socket.close()
+                    self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                    self.socket.bind((self.host, self.port))
+                except Exception as e:
+                    pass
 
 
     def handle_message(self, message, addr):
