@@ -84,6 +84,15 @@ async def get_messages(request):
         return web.json_response({'messages': messages})
     return web.json_response({'error': 'Node not started'}, status=400)
 
+async def stop_node(request):
+    if node:
+        try:
+            node.stop()
+            return web.json_response({'status': 'Node stopped'})
+        except Exception as e:
+            return web.json_response({'error': str(e)}, status=500)
+    return web.json_response({'error': 'Node not started'}, status=400)
+
 app = web.Application()
 app.router.add_post('/start_node', start_node)
 app.router.add_post('/chat_message', chat_message)
@@ -91,6 +100,7 @@ app.router.add_post('/distribute_file', distribute_file)
 app.router.add_post('/retrieve_file', retrieve_file)
 app.router.add_post('/delete_file', delete_file)
 app.router.add_get('/get_messages', get_messages)
+app.router.add_post('/stop_node', stop_node)
 
 if __name__ == '__main__':
     web.run_app(app, port=8080)

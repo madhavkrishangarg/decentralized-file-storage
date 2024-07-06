@@ -134,6 +134,7 @@ class Node:
             except Exception as e:
                 print(f"Error in listen: {e}")
                 traceback.print_exc()
+                time.sleep(5)
                 try:
                     self.socket.close()
                     self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -320,10 +321,10 @@ class Node:
 
     def _send_chunk(self, chunk, addr, index, total_chunks):
         chunk_header = struct.pack("!HH", index, total_chunks) 
-        for i in range(3):
+        for i in range(5):
             try:
                 self.socket.sendto(chunk_header + chunk, addr)
-                return
+                time.sleep(0.1)
             except Exception as e:
                 print(f"Error sending chunk: {e}")
                 traceback.print_exc()

@@ -70,7 +70,7 @@ async function showChat() {
         </div>
     `;
     document.getElementById('send-message-btn').addEventListener('click', sendChatMessage);
-    document.getElementById('chat-input-field').addEventListener('keypress', function(e) {
+    document.getElementById('chat-input-field').addEventListener('keypress', function (e) {
         if (e.key === 'Enter') sendChatMessage();
     });
     displayChatMessages();
@@ -137,9 +137,14 @@ function showFiles() {
     setElementText('content-title', 'My Files');
     const contentArea = document.getElementById('content-area');
     contentArea.innerHTML = `
-        <input type="file" id="file-upload" style="display: none;">
-        <button id="upload-btn" style="margin-bottom: 20px;">Upload File</button>
-        <ul id="file-list" class="file-list"></ul>
+        <div style="position: sticky; top: 0; background-color: white; padding-bottom: 20px; z-index: 1;">
+            <input type="file" id="file-upload" style="display: none;">
+            <button id="upload-btn" class="action-button" style="width: 100%; background-color: #3a3652; color: white; border: none; padding: 10px; font-size: 1rem; cursor: pointer; border-radius: 5px; transition: background-color 0.3s; display: flex; align-items: center; justify-content: center;">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z'/%3E%3C/svg%3E" alt="Upload" class="button-icon" style="width: 24px; height: 24px; margin-right: 8px;">
+                Upload File
+            </button>
+        </div>
+        <ul id="file-list" class="file-list" style="margin-top: 20px;"></ul>
     `;
     document.getElementById('upload-btn').addEventListener('click', () => document.getElementById('file-upload').click());
     document.getElementById('file-upload').addEventListener('change', uploadFile);
@@ -151,12 +156,17 @@ async function uploadFile(event) {
     const file = event.target.files[0];
     if (file) {
         try {
+            showPopup('uploadingPopup');
             const result = await window.electronAPI.distributeFile(file.path);
             console.log('File distributed successfully:', result.file_id);
             fileList.push({ id: result.file_id, name: file.name });
             displayFileList();
+            hidePopup('uploadingPopup');
+            alert('File uploaded successfully!');
         } catch (error) {
             console.error('Failed to distribute file:', error);
+            hidePopup('uploadingPopup');
+            alert('Failed to upload file. Please try again.');
         }
     }
 }
@@ -170,8 +180,10 @@ function displayFileList() {
             const li = document.createElement('li');
             li.classList.add('file-item');
             li.innerHTML = `
-                <div class="file-name">${file.name}</div>
-                <div class="file-id">${file.id}</div>
+                <div class="file-info">
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-id">${file.id}</div>
+                </div>
                 <div class="file-actions">
                     <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233a3652'%3E%3Cpath d='M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z'/%3E%3C/svg%3E" alt="Download" class="action-icon" onclick="downloadFile('${file.id}')">
                     <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff4757'%3E%3Cpath d='M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z'/%3E%3C/svg%3E" alt="Delete" class="action-icon" onclick="deleteFile('${file.id}')">
@@ -185,11 +197,29 @@ function displayFileList() {
 // Download a file
 async function downloadFile(fileId) {
     try {
-        const result = await window.electronAPI.retrieveFile(fileId, `downloads/${fileId}`);
+        showPopup('downloadingPopup');
+        const savePath = await window.electronAPI.showSaveDialog({
+            title: 'Save File',
+            defaultPath: `${fileId}`,
+            buttonLabel: 'Save',
+            filters: [
+                { name: 'All Files', extensions: ['*'] }
+            ]
+        });
+
+        if (savePath.canceled) {
+            console.log('File save canceled by user');
+            hidePopup('downloadingPopup');
+            return;
+        }
+
+        const result = await window.electronAPI.retrieveFile(fileId, savePath.filePath);
         console.log('File retrieved successfully:', result.status);
+        hidePopup('downloadingPopup');
         alert('File downloaded successfully!');
     } catch (error) {
         console.error('Failed to retrieve file:', error);
+        hidePopup('downloadingPopup');
         alert('Failed to download file. Please try again.');
     }
 }
@@ -223,6 +253,22 @@ document.addEventListener('DOMContentLoaded', () => {
         showChat(); // Show chat by default
     }
 });
+
+function showPopup(popupId) {
+    const popup = document.getElementById(popupId);
+    if (popup) popup.style.display = 'flex';
+}
+
+// Hide popup function
+function hidePopup(popupId) {
+    const popup = document.getElementById(popupId);
+    if (popup) popup.style.display = 'none';
+}
+
+function stopNode() {
+    window.electronAPI.stopNode();
+    window.location.href = 'landing.html';
+}
 
 // Make functions available globally
 window.joinNetwork = joinNetwork;

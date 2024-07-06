@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
 const axios = require('axios');
+const { dialog } = require('electron');
 
 let mainWindow;
 let pythonProcess;
@@ -30,13 +31,13 @@ function startPythonServer() {
 
   console.log('Python server started');
 
-  pythonProcess.stdout.on('data', (data) => {
-    console.log(`Python stdout: ${data}`);
-  });
+  // pythonProcess.stdout.on('data', (data) => {
+  //   console.log(`Python stdout: ${data}`);
+  // });
 
-  pythonProcess.stderr.on('data', (data) => {
-    console.error(`Python stderr: ${data}`);
-  });
+  // pythonProcess.stderr.on('data', (data) => {
+  //   console.error(`Python stderr: ${data}`);
+  // });
 
   pythonProcess.on('close', (code) => {
     console.log(`Python process exited with code ${code}`);
@@ -96,6 +97,7 @@ ipcMain.handle('send-chat', async (event, message) => {
 ipcMain.handle('distribute-file', async (event, filePath) => {
   try {
     const response = await axios.post('http://localhost:8080/distribute_file', { file_path: filePath });
+    console.log(response.data);
     return response.data;
   } catch (error) {
     throw error;
@@ -105,6 +107,7 @@ ipcMain.handle('distribute-file', async (event, filePath) => {
 ipcMain.handle('retrieve-file', async (event, fileId, outputPath) => {
   try {
     const response = await axios.post('http://localhost:8080/retrieve_file', { file_id: fileId, output_path: outputPath });
+    console.log(response.data);
     return response.data;
   } catch (error) {
     throw error;
@@ -131,4 +134,13 @@ ipcMain.handle('get-messages', async () => {
 
 ipcMain.on('load-dashboard', (event) => {
   mainWindow.loadFile('dashboard.html');
+});
+
+ipcMain.handle('show-save-dialog', async (event, options) => {
+  return dialog.showSaveDialog(options);
+});
+
+ipcMain.on('stop-node', (event) => {
+  console.log('Stopping node');
+  axios.post('http://localhost:8080/stop_node');
 });

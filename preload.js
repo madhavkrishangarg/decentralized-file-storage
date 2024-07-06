@@ -10,4 +10,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   loadDashboard: () => ipcRenderer.send('load-dashboard'),
   getNodeId: () => ipcRenderer.invoke('get-node-id'),
   getPortNumber: () => ipcRenderer.invoke('get-port-number'),
+  stopNode: () => ipcRenderer.send('stop-node'),
+  showSaveDialog: (options) => ipcRenderer.invoke('show-save-dialog', options),
 });
