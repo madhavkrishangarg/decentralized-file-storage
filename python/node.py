@@ -83,10 +83,10 @@ class Node:
             print("Sending discovery message to known peer...")
             self.send_message({'type': 'discovery'}, self.know_peer)
             try:
-                await asyncio.wait_for(self.discovery_response_received.wait(), timeout=10)
+                await asyncio.wait_for(self.discovery_response_received.wait(), timeout=15)
             except asyncio.TimeoutError:
                 print("Discovery response not received from known peer. Exiting.")
-                exit(1)
+                return None, None
 
         print("Node started.")
         return self.port, self.node_id

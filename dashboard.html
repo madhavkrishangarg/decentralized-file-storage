@@ -9,7 +9,7 @@
         body, html {
             margin: 0;
             padding: 0;
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Montserrat', Arial, sans-serif;
             height: 100%;
         }
         .container {
@@ -73,11 +73,21 @@
             flex-grow: 1;
             overflow-y: auto;
             margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
         }
         .chat-message {
             margin-bottom: 10px;
             padding: 10px;
             border-radius: 5px;
+            max-width: 70%;
+            overflow-wrap: break-word; 
+            overflow: auto; 
+        }
+        .chat-message .node-id {
+            font-size: 0.8em;
+            color: #888;
+            margin-bottom: 5px;
         }
         .chat-message.incoming {
             background-color: #f0f0ff;
@@ -156,8 +166,8 @@
         </div>
         <div class="main-content">
             <div class="header">
-                <div class="node-info">Node Id: <span id="node-id"></span></div>
-                <div class="node-info">Port No: <span id="port-no"></span></div>
+                <div class="node-info"><strong>Node Id: </strong><span id="node-id"></span></div>
+                <div class="node-info"><strong>Port No: </strong><span id="port-no"></span></div>
             </div>
             <h1 id="content-title">Dashboard</h1>
             <div id="content-area" class="content-area">
@@ -165,7 +175,6 @@
             </div>
         </div>
     </div>
-
     <script src="renderer.js"></script>
 </body>
 </html>

@@ -3,15 +3,17 @@ import random
 import json
 from aiohttp import web
 from node import Node
+import sys
 
 node = None
 
 async def start_node(request):
+    print('Start Node called')
     global node
     data = await request.json()
     known_peer = data.get('known_peer')
     if known_peer:
-        parts = known_peer.split()
+        parts = known_peer.split(':')
         if len(parts) == 1:
             known_peer = ('127.0.0.1', int(parts[0]))
         elif len(parts) == 2:
@@ -23,7 +25,10 @@ async def start_node(request):
     print(node.port, node.node_id)
     try:
         port, node_id = await node.start()
-        return web.json_response({'status': 'Node started successfully', 'port': port, 'node_id': node_id})
+        if port and node_id:
+            return web.json_response({'status': 'Node started successfully', 'port': port, 'node_id': node_id})
+        else:
+            return web.json_response({'error': 'Failed to start node'}, status=500)
     except Exception as e:
         return web.json_response({'error': str(e)}, status=500)
 

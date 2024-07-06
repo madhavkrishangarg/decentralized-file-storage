@@ -1,14 +1,12 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
-const WebSocket = require('ws');
 const axios = require('axios');
 
 let mainWindow;
 let pythonProcess;
-let ws;
-let wsRetryCount = 0;
-const MAX_RETRY = 5;
+let nodeId;
+let portNumber;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -22,12 +20,15 @@ function createWindow() {
   });
 
   mainWindow.loadFile('landing.html');
+  mainWindow.webContents.openDevTools();
 }
 
 function startPythonServer() {
-  pythonProcess = spawn('python3', [path.join(__dirname, 'python', 'runner.py')], {
+  pythonProcess = spawn('python3', ['python/runner.py'], {
     stdio: ['pipe', 'pipe', 'pipe'],
   });
+
+  console.log('Python server started');
 
   pythonProcess.stdout.on('data', (data) => {
     console.log(`Python stdout: ${data}`);
@@ -42,52 +43,9 @@ function startPythonServer() {
   });
 }
 
-function setupWebSocket() {
-  ws = new WebSocket('ws://localhost:8080/ws');
-
-  ws.on('open', function open() {
-    console.log('Connected to WebSocket server');
-    wsRetryCount = 0;
-    mainWindow.webContents.send('ws-status', { connected: true });
-  });
-
-  ws.on('message', function incoming(data) {
-    const message = JSON.parse(data);
-    if (message.type === 'chat') {
-      mainWindow.webContents.send('chat-message', message);
-    }
-  });
-
-  ws.on('close', function close() {
-    console.log('Disconnected from WebSocket server');
-    mainWindow.webContents.send('ws-status', { connected: false });
-    retryWebSocketConnection();
-  });
-
-  ws.on('error', function error(err) {
-    console.error('WebSocket error:', err);
-    retryWebSocketConnection();
-  });
-}
-
-function retryWebSocketConnection() {
-  if (wsRetryCount < MAX_RETRY) {
-    wsRetryCount++;
-    console.log(`Retrying WebSocket connection... Attempt ${wsRetryCount}`);
-    setTimeout(setupWebSocket, 5000);
-  } else {
-    console.error('Max retry attempts reached. WebSocket connection failed.');
-    mainWindow.webContents.send('ws-status', { connected: false, maxRetryReached: true });
-  }
-}
-
 app.whenReady().then(() => {
   createWindow();
   startPythonServer();
-  
-  setTimeout(() => {
-    setupWebSocket();
-  }, 2000);
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -100,26 +58,35 @@ app.on('window-all-closed', function () {
 
 app.on('before-quit', async () => {
   if (pythonProcess) {
-    await axios.post('http://localhost:8080/shutdown').catch(console.error);
     pythonProcess.kill();
   }
-  if (ws) ws.close();
 });
 
 ipcMain.handle('start-node', async (event, knownPeer) => {
+  console.log('Starting node with known peer:', knownPeer);
   try {
-    const response = await axios.post('http://localhost:8080/initialize', { 
-      known_peer: knownPeer ? { ip: knownPeer.split(':')[0], port: parseInt(knownPeer.split(':')[1]) } : null 
-    });
+    const response = await axios.post('http://localhost:8080/start_node', { known_peer: knownPeer });
+    console.log(response.data);
+    nodeId = response.data.node_id;
+    portNumber = response.data.port;
     return response.data;
   } catch (error) {
     throw error;
   }
 });
 
+ipcMain.handle('get-node-id', async () => {
+  return nodeId;
+});
+
+ipcMain.handle('get-port-number', async () => {
+  console.log('Getting port number:', portNumber);
+  return portNumber;
+});
+
 ipcMain.handle('send-chat', async (event, message) => {
   try {
-    const response = await axios.post('http://localhost:8080/chat', { message });
+    const response = await axios.post('http://localhost:8080/chat_message', { message });
     return response.data;
   } catch (error) {
     throw error;
@@ -128,7 +95,7 @@ ipcMain.handle('send-chat', async (event, message) => {
 
 ipcMain.handle('distribute-file', async (event, filePath) => {
   try {
-    const response = await axios.post('http://localhost:8080/distribute', { file_path: filePath });
+    const response = await axios.post('http://localhost:8080/distribute_file', { file_path: filePath });
     return response.data;
   } catch (error) {
     throw error;
@@ -137,7 +104,7 @@ ipcMain.handle('distribute-file', async (event, filePath) => {
 
 ipcMain.handle('retrieve-file', async (event, fileId, outputPath) => {
   try {
-    const response = await axios.post('http://localhost:8080/retrieve', { file_id: fileId, output_path: outputPath });
+    const response = await axios.post('http://localhost:8080/retrieve_file', { file_id: fileId, output_path: outputPath });
     return response.data;
   } catch (error) {
     throw error;
@@ -146,7 +113,16 @@ ipcMain.handle('retrieve-file', async (event, fileId, outputPath) => {
 
 ipcMain.handle('delete-file', async (event, fileId) => {
   try {
-    const response = await axios.post('http://localhost:8080/delete', { file_id: fileId });
+    const response = await axios.post('http://localhost:8080/delete_file', { file_id: fileId });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+});
+
+ipcMain.handle('get-messages', async () => {
+  try {
+    const response = await axios.get('http://localhost:8080/get_messages');
     return response.data;
   } catch (error) {
     throw error;

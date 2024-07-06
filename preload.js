@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer } = require('electron')
+const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
   startNode: (knownPeer) => ipcRenderer.invoke('start-node', knownPeer),
@@ -6,7 +6,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   distributeFile: (filePath) => ipcRenderer.invoke('distribute-file', filePath),
   retrieveFile: (fileId, outputPath) => ipcRenderer.invoke('retrieve-file', fileId, outputPath),
   deleteFile: (fileId) => ipcRenderer.invoke('delete-file', fileId),
+  getMessages: () => ipcRenderer.invoke('get-messages'),
   loadDashboard: () => ipcRenderer.send('load-dashboard'),
-  onWsStatus: (callback) => ipcRenderer.on('ws-status', callback),
-  onChatMessage: (callback) => ipcRenderer.on('chat-message', callback)
-})
+  getNodeId: () => ipcRenderer.invoke('get-node-id'),
+  getPortNumber: () => ipcRenderer.invoke('get-port-number'),
+});
