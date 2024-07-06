@@ -3,18 +3,50 @@
   "version": "1.0.0",
   "discription": "A peer to peer file storage system over UDP",
   "main": "main.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron ."
-  },
   "keywords": [],
   "author": "Madhav Krishan Garg",
   "license": "MIT",
-  "devDependencies": {
-    "electron": "^31.1.0"
-  },
   "dependencies": {
     "axios": "^1.7.2",
     "ws": "^8.18.0"
+  },
+  "build": {
+    "appId": "com.madhavkrishangarg.decentralizedfilestorage",
+    "productName": "Decentralized File Storage",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+      "!.editorconfig",
+      "!.eslintrc.json",
+      "!{.gitignore,.git,.hg,.svn,CVS,RCS,SCCS,__pycache__,thumbs.db,.DS_Store,.idea,.vscode,.vs}"
+    ],
+    "mac": {
+      "category": "public.app-category.utilities",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "icon": "icon/mac.icns"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "icon/windows.ico"
+    }
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --mac --win"
+  },
+  "devDependencies": {
+    "electron": "^31.1.0",
+    "electron-builder": "^24.9.1"
   }
 }
