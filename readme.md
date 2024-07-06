@@ -254,11 +254,10 @@ async function showChat() {
 
 ## Getting Started
 
-[Include instructions on how to set up and run the project]
+1. Install Node and Electron
+2. ```$ npm install ```
+3. ```$ npm start ```
 
-## Contributing
-
-[Guidelines for contributing to the project]
 
 ## License
 
