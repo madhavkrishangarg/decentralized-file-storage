@@ -11,7 +11,7 @@
         html {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Montserrat', Arial, sans-serif;
             height: 100%;
         }
 
@@ -145,12 +145,23 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+            background-color: #f5f5f5;
         }
 
-        .file-item:last-child {
-            border-bottom: none;
+        .file-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .file-name {
+            font-weight: bold;
+        }
+
+        .file-id {
+            color: #666;
+            font-size: 0.8em;
         }
 
         .file-actions {
@@ -158,12 +169,9 @@
             gap: 10px;
         }
 
-        .file-actions button {
-            padding: 5px 10px;
-            background-color: #3a3652;
-            color: white;
-            border: none;
-            border-radius: 3px;
+        .action-icon {
+            width: 24px;
+            height: 24px;
             cursor: pointer;
         }
 
@@ -216,6 +224,28 @@
             100% {
                 transform: rotate(360deg);
             }
+        }
+
+        #upload-btn {
+            width: 20%;
+            background-color: #3a3652;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .button-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
         }
     </style>
 </head>

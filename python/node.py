@@ -125,7 +125,7 @@ class Node:
 
                 buffer[addr][index] = chunk
 
-                if len(buffer[addr]) == total_chunks:
+                if len(buffer[addr]) == total_chunks and all(index in buffer[addr] for index in range(total_chunks)):
                     # All chunks received, reassemble
                     full_message = b''.join(buffer[addr][i] for i in range(total_chunks))
                     del buffer[addr]  # Clear buffer for this addr
@@ -134,7 +134,6 @@ class Node:
             except Exception as e:
                 print(f"Error in listen: {e}")
                 traceback.print_exc()
-                time.sleep(5)
                 try:
                     self.socket.close()
                     self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -321,10 +320,10 @@ class Node:
 
     def _send_chunk(self, chunk, addr, index, total_chunks):
         chunk_header = struct.pack("!HH", index, total_chunks) 
-        for i in range(5):
+        for i in range(3):
             try:
                 self.socket.sendto(chunk_header + chunk, addr)
-                time.sleep(0.1)
+                return
             except Exception as e:
                 print(f"Error sending chunk: {e}")
                 traceback.print_exc()

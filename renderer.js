@@ -139,7 +139,7 @@ function showFiles() {
     contentArea.innerHTML = `
         <div style="position: sticky; top: 0; background-color: white; padding-bottom: 20px; z-index: 1;">
             <input type="file" id="file-upload" style="display: none;">
-            <button id="upload-btn" class="action-button" style="width: 100%; background-color: #3a3652; color: white; border: none; padding: 10px; font-size: 1rem; cursor: pointer; border-radius: 5px; transition: background-color 0.3s; display: flex; align-items: center; justify-content: center;">
+            <button id="upload-btn" class="action-button" style="width: 20%; background-color: #3a3652; color: white; border: none; padding: 10px; font-size: 1rem; cursor: pointer; border-radius: 5px; transition: background-color 0.3s; display: flex; align-items: center; justify-content: center;">
                 <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z'/%3E%3C/svg%3E" alt="Upload" class="button-icon" style="width: 24px; height: 24px; margin-right: 8px;">
                 Upload File
             </button>
@@ -185,8 +185,8 @@ function displayFileList() {
                     <div class="file-id">${file.id}</div>
                 </div>
                 <div class="file-actions">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233a3652'%3E%3Cpath d='M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z'/%3E%3C/svg%3E" alt="Download" class="action-icon" onclick="downloadFile('${file.id}')">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff4757'%3E%3Cpath d='M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z'/%3E%3C/svg%3E" alt="Delete" class="action-icon" onclick="deleteFile('${file.id}')">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23000000'%3E%3Cpath d='M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z'/%3E%3C/svg%3E" alt="Download" class="action-icon" onclick="downloadFile('${file.id}')">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23000000'%3E%3Cpath d='M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z'/%3E%3C/svg%3E" alt="Delete" class="action-icon" onclick="deleteFile('${file.id}')">
                 </div>
             `;
             fileListElement.appendChild(li);

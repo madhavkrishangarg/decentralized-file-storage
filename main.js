@@ -96,7 +96,7 @@ ipcMain.handle('send-chat', async (event, message) => {
 
 ipcMain.handle('distribute-file', async (event, filePath) => {
   try {
-    const response = await axios.post('http://localhost:8080/distribute_file', { file_path: filePath });
+    const response = await axios.post('http://localhost:8080/distribute_file', { file_path: filePath }, { timeout: 30000 });
     console.log(response.data);
     return response.data;
   } catch (error) {
@@ -106,7 +106,7 @@ ipcMain.handle('distribute-file', async (event, filePath) => {
 
 ipcMain.handle('retrieve-file', async (event, fileId, outputPath) => {
   try {
-    const response = await axios.post('http://localhost:8080/retrieve_file', { file_id: fileId, output_path: outputPath });
+    const response = await axios.post('http://localhost:8080/retrieve_file', { file_id: fileId, output_path: outputPath }, { timeout: 30000 });
     console.log(response.data);
     return response.data;
   } catch (error) {
